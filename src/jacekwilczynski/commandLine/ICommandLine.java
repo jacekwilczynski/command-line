@@ -27,65 +27,63 @@ import java.util.function.Consumer;
 
 /**
  * <p>
- * An interface establishing the base architecture for a command-line user
- * interface.</p>
+ * An interface delineating the external behavior of Command Line classes.</p>
  * <p>
  * An implementation should provide a user interface and interpret user input
  * only to the extent necessary to determine and launch a command.</p>
  *
- * @param <CommandType> the type of commands that will be used by the
- * implementation of this interface
  */
-public interface ICommandLine<CommandType> {
+public interface ICommandLine {
 
     /**
-     * Links given commands to this command line.
+     * Links given command libraries to this command line.
      *
-     * @param commands commands to link
+     * @param libraries commands to link
      */
-    public void link(CommandType... commands);
+    public void link(CommandLibrary... libraries);
 
     /**
-     * Unlinks given commands from this command line.
+     * Unlinks given command libraries from this command line.
      *
-     * @param commands commands to unlink
+     * @param libraries commands to unlink
      */
-    public void unlink(CommandType... commands);
+    public void unlink(CommandLibrary... libraries);
 
     /**
-     * Returns true if the given commands are linked to this command line.
+     * Returns true if the given command libraries are linked to this command
+     * line.
      *
-     * @param commands commands to check
-     * @return true if all commands are linked to this command line, false if
-     * one or more is not
+     * @param libraries command libraries to look for
+     * @return true if all the libraries are linked to this command line, false
+     * if one or more is not
      */
-    public boolean has(CommandType... commands);
+    public boolean has(CommandLibrary... libraries);
 
     /**
-     * Returns an array of the commands linked to this command line.
+     * Returns an array of the command libraries linked to this command line.
      *
-     * @return array of commands
+     * @return array of command libraries
      */
-    public CommandType[] getAll();
+    public CommandLibrary[] getAll();
 
     /**
-     * Performs an action on the given command objects. Can be used to launch
-     * multiple commands or change their inner settings.
-     *
-     * @param action action to be performed. Can use a lambda expression. Does
-     * not take any arguments or return any value.
-     * @param commands the commands to perform the action on
-     */
-    public void apply(Consumer<CommandType> action, CommandType... commands);
-
-    /**
-     * Performs an action on all commands link to this command line. Can be used
-     * to launch multiple commands or change their inner settings.
+     * Performs an action on the given command libraries. Useful for changing
+     * parse settings of multiple libraries in one go.
      *
      * @param action action to be performed. Can use a lambda expression. Does
      * not take any arguments or return any value.
+     * @param libraries the libraries to perform the action on
      */
-    default public void apply(Consumer<CommandType> action) {
+    public void apply(Consumer<CommandLibrary> action, CommandLibrary... libraries);
+
+    /**
+     * Performs an action on all libraries linked to this command line. Useful
+     * for changing parse settings of all libraries in one go.
+     *
+     * @param action action to be performed. Can use a lambda expression. Does
+     * not take any arguments or return any value.
+     */
+    default public void apply(Consumer<CommandLibrary> action) {
         apply(action, getAll());
     }
 

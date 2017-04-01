@@ -27,109 +27,83 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import static javafx.application.Platform.exit;
 
 /**
  *
  *
  */
-public abstract class CommandLine implements ICommandLine<Command> {
+public class CommandLine implements ICommandLine {
+    
+    private final Scanner IN = new Scanner(System.in);
 
-    private boolean caseSensitive;
-    private BiPredicate<String, String> compareMethod;
-    private Map<String, Command> linkMap;
-    private Set<Command> linkSet;
-
-    {
-        setCaseSensitive(false);
-        linkMap = new HashMap<>();
-        linkSet = new HashSet<>();
-    }
-
-    public final void setCaseSensitive(boolean value) {
-        caseSensitive = value;
-        if (caseSensitive) {
-            compareMethod = (s1, s2) -> s1.equals(s2);
-        } else {
-            compareMethod = (s1, s2) -> s1.equalsIgnoreCase(s2);
-        }
-    }
-
-    public boolean isCaseSensitive() {
-        return caseSensitive;
-    }
+    private Map<String, CommandLibrary> libMap = new HashMap<>();
+    private Set<CommandLibrary> libSet = new HashSet<>();
 
     @Override
-    public void link(Command... commands) {
-        for (Command command : commands) {
-            linkSet.add(command);
-            linkMap.put(command.getName(), command);
+    public void link(CommandLibrary... libraries) {
+        for (CommandLibrary library : libraries) {
+            libSet.add(library);
+            libMap.put(library.getName(), library);
         }
     }
 
     @Override
-    public void unlink(Command... commands) {
-        for (Command command : commands) {
-            if (has(command)) {
-                linkSet.remove(command);
-                linkMap.remove(command.getName());
-            }
+    public void unlink(CommandLibrary... libraries) {
+        for (CommandLibrary library : libraries) {
+            libSet.remove(library);
+            libMap.remove(library.getName(), library);
         }
     }
 
     @Override
-    public boolean has(Command... commands) {
-        return linkSet.containsAll(Arrays.asList(commands));
-    }
-
-    public boolean has(String... commands) {
-        return linkMap.keySet().containsAll(Arrays.asList(commands));
+    public boolean has(CommandLibrary... libraries) {
+        return libSet.containsAll(Arrays.asList(libraries));
     }
 
     @Override
-    public Command[] getAll() {
-        return (Command[]) linkSet.toArray();
+    public CommandLibrary[] getAll() {
+        return (CommandLibrary[]) libSet.toArray();
     }
 
     @Override
-    public void apply(Consumer<Command> action, Command... commands) {
-        for (Command command : commands) {
-            action.accept(command);
+    public void apply(Consumer<CommandLibrary> action, CommandLibrary... libraries) {
+        for (CommandLibrary library : libraries) {
+            action.accept(library);
         }
     }
 
     @Override
     public void run() {
-        initialize();
+        begin();
         do {
             prompt();
         } while (accept(getInput()));
         exit();
     }
-
-    protected boolean areEqual(String s1, String s2) {
-        return compareMethod.test(s1, s2);
+    
+    protected void begin() {
+        System.out.println("Welcome to Command Line by Jacek Wilczynski!");
     }
-
-    protected boolean launch(String command, String[] args) {
-        if (has(command)) {
-            linkMap.get(command).launch(args);
-            return true;
-        } else {
-            return false;
-        }
+    
+    protected void prompt() {
+        System.out.print("> ");
     }
-
-    protected abstract void initialize();
-
-    protected abstract void prompt();
-
-    protected abstract String getInput();
-
-    protected abstract boolean accept(String input);
-
-    protected abstract void exit();
+    
+    protected String getInput() {
+        return IN.nextLine();
+    }
+    
+    protected boolean accept(String line) {
+        // TODO
+        return true;
+    }
+    
+    protected void exit() {
+        System.out.println("Goodbye!");
+    }
 
 }

@@ -26,6 +26,12 @@ package jacekwilczynski.commandLine;
 /**
  *
  */
+@FunctionalInterface
 public interface CommandLibrary {
+    
+    default public String getName() {
+        return "Commands";
+    }
+    public boolean parse(String line);
     
 }
