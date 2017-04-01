@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  * An implementation should provide a user interface and interpret user input
  * only to the extent necessary to determine and launch a command.</p>
  *
- * @param <CommandType> the class type of commands that will be used by the
+ * @param <CommandType> the type of commands that will be used by the
  * implementation of this interface
  */
 public interface ICommandLine<CommandType> {

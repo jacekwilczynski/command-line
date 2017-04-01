@@ -24,8 +24,11 @@
 package jacekwilczynski.commandLine;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -34,8 +37,29 @@ import java.util.function.Consumer;
  */
 public abstract class CommandLine implements ICommandLine<Command> {
 
+    private boolean caseSensitive;
+    private BiPredicate<String, String> compareMethod;
     private Map<String, Command> linkMap;
     private Set<Command> linkSet;
+
+    {
+        setCaseSensitive(false);
+        linkMap = new HashMap<>();
+        linkSet = new HashSet<>();
+    }
+
+    public final void setCaseSensitive(boolean value) {
+        caseSensitive = value;
+        if (caseSensitive) {
+            compareMethod = (s1, s2) -> s1.equals(s2);
+        } else {
+            compareMethod = (s1, s2) -> s1.equalsIgnoreCase(s2);
+        }
+    }
+
+    public boolean isCaseSensitive() {
+        return caseSensitive;
+    }
 
     @Override
     public void link(Command... commands) {
@@ -85,10 +109,27 @@ public abstract class CommandLine implements ICommandLine<Command> {
         exit();
     }
 
+    protected boolean areEqual(String s1, String s2) {
+        return compareMethod.test(s1, s2);
+    }
+
+    protected boolean launch(String command, String[] args) {
+        if (has(command)) {
+            linkMap.get(command).launch(args);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     protected abstract void initialize();
+
     protected abstract void prompt();
+
     protected abstract String getInput();
+
     protected abstract boolean accept(String input);
+
     protected abstract void exit();
 
 }
