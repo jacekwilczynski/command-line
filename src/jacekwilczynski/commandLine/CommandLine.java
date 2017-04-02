@@ -30,24 +30,32 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Consumer;
-import static javafx.application.Platform.exit;
 
 /**
  *
  *
  */
 public class CommandLine implements ICommandLine {
-    
+
+    public OnNameConflict onNameConflict = new OnNameConflict(OnNameConflict.Behavior.ASK);
+    public OnNoSuchElement onNoSuchElement = new OnNoSuchElement(OnNoSuchElement.Behavior.DO_NOTHING);
+
     private final Scanner IN = new Scanner(System.in);
 
-    private Map<String, CommandLibrary> libMap = new HashMap<>();
-    private Set<CommandLibrary> libSet = new HashSet<>();
+    private final Map<String, CommandLibrary> libMap = new HashMap<>();
+    private final Set<CommandLibrary> libSet = new HashSet<>();
 
     @Override
     public void link(CommandLibrary... libraries) {
         for (CommandLibrary library : libraries) {
-            libSet.add(library);
-            libMap.put(library.getName(), library);
+            boolean isFree = libSet.add(library);
+            String name = library.getName();
+            if (!isFree) {
+                isFree = onNameConflict.test(name);
+            }
+            if (isFree) {
+                libMap.put(name, library);
+            }
         }
     }
 
@@ -84,24 +92,24 @@ public class CommandLine implements ICommandLine {
         } while (accept(getInput()));
         exit();
     }
-    
+
     protected void begin() {
         System.out.println("Welcome to Command Line by Jacek Wilczynski!");
     }
-    
+
     protected void prompt() {
         System.out.print("> ");
     }
-    
+
     protected String getInput() {
         return IN.nextLine();
     }
-    
+
     protected boolean accept(String line) {
         // TODO
         return true;
     }
-    
+
     protected void exit() {
         System.out.println("Goodbye!");
     }
