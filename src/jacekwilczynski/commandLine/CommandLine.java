@@ -72,6 +72,15 @@ public class CommandLine implements ICommandLine {
         return libSet.containsAll(Arrays.asList(libraries));
     }
 
+    public boolean has(String... libraries) {
+        for (String library : libraries) {
+            if (!libMap.containsKey(library)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public CommandLibrary[] getAll() {
         return (CommandLibrary[]) libSet.toArray();
